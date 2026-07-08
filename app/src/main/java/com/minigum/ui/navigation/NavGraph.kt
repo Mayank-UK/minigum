@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.minigum.ui.screens.home.HomeScreen
 import com.minigum.ui.screens.pong.PongScreen
+import com.minigum.ui.screens.runner.RunnerScreen
 import com.minigum.ui.screens.shooter.ShooterScreen
 import com.minigum.ui.screens.snake.SnakeScreen
 
@@ -20,5 +21,6 @@ fun NavGraph(
         composable(NavRouter.SnakeScreen.route) { SnakeScreen(navController = navController) }
         composable(NavRouter.PongScreen.route) { PongScreen(navController = navController) }
         composable(NavRouter.ShooterScreen.route) { ShooterScreen(navController = navController) }
+        composable(NavRouter.RunnerScreen.route) { RunnerScreen(navController = navController) }
     }
 }

@@ -9,4 +9,5 @@ sealed class NavRouter(val route: String) {
     object SnakeScreen : NavRouter("snake")
     object PongScreen : NavRouter("pong")
     object ShooterScreen : NavRouter("shooter")
+    object RunnerScreen : NavRouter("runner")
 }

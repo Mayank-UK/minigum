@@ -27,5 +27,10 @@ class HomeViewModel @Inject constructor(
             image = R.drawable.shooter,
             routePath = NavRouter.ShooterScreen.route
         ),
+        LinkData(
+            title = "Runner",
+            image = R.drawable.runner,
+            routePath = NavRouter.RunnerScreen.route
+        ),
     )
 }

@@ -1,0 +1,441 @@
+package com.minigum.ui.screens.runner
+
+import android.app.Activity
+import android.content.Context
+import android.content.pm.ActivityInfo
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.minigum.ui.components.GamePauseOverlay
+import com.minigum.ui.components.HowToPlayDialog
+import com.minigum.ui.theme.MinigumTheme
+import com.minigum.ui.theme.Sizes
+import kotlin.math.abs
+
+@Composable
+fun RunnerScreen(
+    navController: NavController,
+    viewModel: RunnerViewModel = hiltViewModel(),
+) {
+    val state by viewModel.state.collectAsState()
+
+    // UI-only state.
+    var showHowTo by remember { mutableStateOf(true) }
+    var showPause by remember { mutableStateOf(false) }
+
+    // Entering the game: lock to portrait and go immersive full-screen.
+    LockPortraitImmersive()
+
+    val overlayOpen = showHowTo || showPause || state.isGameOver
+    LaunchedEffect(overlayOpen) {
+        if (overlayOpen && state.isRunning) viewModel.pause()
+    }
+
+    BackHandler(enabled = !showHowTo) {
+        when {
+            showPause -> { showPause = false; viewModel.start() }
+            state.isGameOver -> navController.navigateUp()
+            else -> { viewModel.pause(); showPause = true }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+    ) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val aspect = remember(constraints.maxWidth, constraints.maxHeight) {
+                if (constraints.maxHeight > 0) constraints.maxWidth.toFloat() / constraints.maxHeight.toFloat() else 9f / 16f
+            }
+            LaunchedEffect(aspect) { viewModel.configure(aspect) }
+            Board(
+                state = state,
+                modifier = Modifier.fillMaxSize(),
+                onSwipe = { dir -> handleSwipe(dir, viewModel) },
+                onTap = viewModel::jump,
+            )
+        }
+
+        HitFeedback(state = state)
+
+        HudPill(
+            metres = state.metres.toInt(),
+            best = state.bestMetres,
+            lives = state.lives,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(Sizes.sm),
+        )
+
+        IconButton(
+            onClick = { viewModel.pause(); showPause = true },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(Sizes.xxs),
+        ) {
+            Icon(Icons.Filled.Pause, contentDescription = "Pause")
+        }
+
+        if (showPause) {
+            GamePauseOverlay(
+                onResume = { showPause = false; viewModel.start() },
+                onHowToPlay = { showPause = false; showHowTo = true },
+                onExit = { navController.navigateUp() },
+            )
+        }
+
+        if (state.isGameOver && !showPause) {
+            GameOverOverlay(
+                metres = state.metres.toInt(),
+                best = state.bestMetres,
+                onPlayAgain = { viewModel.restart() },
+                onExit = { navController.navigateUp() },
+            )
+        }
+    }
+
+    if (showHowTo) {
+        HowToPlayDialog(
+            title = "How to play — Runner",
+            instructions = runnerInstructions,
+            onContinue = {
+                showHowTo = false
+                viewModel.start()
+            },
+        )
+    }
+}
+
+private enum class SwipeDir { LEFT, RIGHT, UP, DOWN }
+
+private fun handleSwipe(dir: SwipeDir, viewModel: RunnerViewModel) {
+    when (dir) {
+        SwipeDir.LEFT -> viewModel.moveLane(-1)
+        SwipeDir.RIGHT -> viewModel.moveLane(1)
+        SwipeDir.UP -> viewModel.jump()
+        SwipeDir.DOWN -> viewModel.slide()
+    }
+}
+
+private val runnerInstructions = listOf(
+    "Swipe left or right to switch between the three lanes.",
+    "Swipe up (or just tap) to jump — clear the orange hurdles.",
+    "Swipe down to slide — duck under the blue overhead bars.",
+    "Red blocks fill the whole lane: switch lanes to avoid them.",
+    "You have three lives; a hit costs one with a brief safe window.",
+    "You speed up the farther you run, so react fast.",
+    "Tap the ✕ (or press Back) to pause or exit.",
+)
+
+@Composable
+private fun LockPortraitImmersive() {
+    val context = LocalContext.current
+    val activity = context.findActivity() ?: return
+    DisposableEffect(Unit) {
+        val window = activity.window
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        val previousOrientation = activity.requestedOrientation
+        val previousBarsBehavior = controller.systemBarsBehavior
+
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_DEFAULT
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        onDispose {
+            activity.requestedOrientation = previousOrientation
+            controller.show(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior = previousBarsBehavior
+        }
+    }
+}
+
+private fun Context.findActivity(): Activity? {
+    var ctx = this
+    while (ctx is android.content.ContextWrapper) {
+        if (ctx is Activity) return ctx
+        ctx = ctx.baseContext
+    }
+    return null
+}
+
+private val HitFlashColor = Color(0xFFE53935)
+private const val FLASH_PEAK = 0.5f
+private const val FLASH_MS = 400
+
+@Composable
+private fun BoxScope.HitFeedback(state: RunnerViewModel.GameState) {
+    val haptic = LocalHapticFeedback.current
+    val flashAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(state.hitEventId) {
+        if (state.hitEventId > 0) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            flashAlpha.snapTo(FLASH_PEAK)
+            flashAlpha.animateTo(0f, tween(FLASH_MS, easing = FastOutSlowInEasing))
+        }
+    }
+
+    if (flashAlpha.value > 0f) {
+        Box(modifier = Modifier.fillMaxSize().background(HitFlashColor.copy(alpha = flashAlpha.value)))
+    }
+}
+
+@Composable
+private fun HudPill(metres: Int, best: Int, lives: Int, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .background(Color.Black.copy(alpha = 0.32f), RoundedCornerShape(Sizes.lg))
+            .padding(horizontal = Sizes.md, vertical = Sizes.sm),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Sizes.md),
+    ) {
+        Text("$metres m", color = Color.White, fontWeight = FontWeight.Bold)
+        Text("Best $best", color = Color.White.copy(alpha = 0.85f))
+        Text("♥ $lives", color = Color.White.copy(alpha = 0.95f))
+    }
+}
+
+@Composable
+private fun Board(
+    state: RunnerViewModel.GameState,
+    modifier: Modifier = Modifier,
+    onSwipe: (SwipeDir) -> Unit,
+    onTap: () -> Unit,
+) {
+    val roadColor = Color(0xFF2B2B33)
+    val edgeColor = Color(0xFF3A3A44)
+    val dashColor = Color.White.copy(alpha = 0.32f)
+    val lowColor = Color(0xFFFFAB40)
+    val highColor = Color(0xFF42A5F5)
+    val fullColor = Color(0xFFEF5350)
+    val playerColor = MaterialTheme.colorScheme.primary
+    val shadowColor = Color.Black.copy(alpha = 0.35f)
+
+    Canvas(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
+            .pointerInput(Unit) {
+                val threshold = 28f
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var startX = down.position.x
+                    var startY = down.position.y
+                    var consumed = false
+                    var active = true
+                    while (active) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.first()
+                        if (change.pressed) {
+                            val dx = change.position.x - startX
+                            val dy = change.position.y - startY
+                            if (!consumed && (abs(dx) > threshold || abs(dy) > threshold)) {
+                                val dir = if (abs(dx) > abs(dy)) {
+                                    if (dx > 0) SwipeDir.RIGHT else SwipeDir.LEFT
+                                } else {
+                                    if (dy > 0) SwipeDir.DOWN else SwipeDir.UP
+                                }
+                                onSwipe(dir)
+                                consumed = true
+                            }
+                        } else {
+                            // Finger lifted: a tiny, unhandled movement counts as a tap = jump.
+                            if (!consumed) onTap()
+                            active = false
+                        }
+                    }
+                }
+            },
+    ) {
+        drawScene(
+            state, roadColor, edgeColor, dashColor,
+            lowColor, highColor, fullColor, playerColor, shadowColor,
+        )
+    }
+}
+
+/** Fake-3D projection: lanes/obstacles recede to a vanishing point near the top. */
+private fun DrawScope.drawScene(
+    state: RunnerViewModel.GameState,
+    roadColor: Color,
+    edgeColor: Color,
+    dashColor: Color,
+    lowColor: Color,
+    highColor: Color,
+    fullColor: Color,
+    playerColor: Color,
+    shadowColor: Color,
+) {
+    val w = size.width
+    val h = size.height
+    val horizonY = h * 0.34f
+    val baseY = h * 0.8f
+    val vx = w * 0.5f
+    val laneOff = w * 0.3f
+    val perspK = 1.6f
+
+    fun scaleZ(z: Float): Float = 1f / (1f + z * perspK)
+    fun projX(lane: Float, z: Float): Float = vx + lane * laneOff * scaleZ(z)
+    fun projY(z: Float): Float = horizonY + (baseY - horizonY) * scaleZ(z)
+
+    // Road bed: trapezoid from the horizon to past the bottom of the screen.
+    val farZ = 1.3f
+    val nearZ = -0.3f
+    val road = Path().apply {
+        moveTo(projX(-1.6f, farZ), projY(farZ))
+        lineTo(projX(1.6f, farZ), projY(farZ))
+        lineTo(projX(1.6f, nearZ), projY(nearZ))
+        lineTo(projX(-1.6f, nearZ), projY(nearZ))
+        close()
+    }
+    drawPath(road, roadColor)
+
+    // Side rails.
+    for (edge in listOf(-1.6f, 1.6f)) {
+        drawLine(
+            edgeColor,
+            Offset(projX(edge, farZ), projY(farZ)),
+            Offset(projX(edge, nearZ), projY(nearZ)),
+            strokeWidth = h * 0.006f,
+        )
+    }
+
+    // Scrolling lane dividers convey forward speed.
+    val dashSpacing = 0.12f
+    var z = (state.metres * 0.02f) % dashSpacing
+    while (z < 1.2f) {
+        val sc = scaleZ(z)
+        val y = projY(z)
+        val dh = h * 0.03f * sc
+        val dw = w * 0.012f * sc
+        for (div in listOf(-0.5f, 0.5f)) {
+            val x = projX(div, z)
+            drawRect(dashColor, Offset(x - dw / 2f, y - dh), Size(dw, dh))
+        }
+        z += dashSpacing
+    }
+
+    // Obstacles, near-to-far so closer ones overlap farther ones.
+    val sorted = state.obstacles.sortedByDescending { it.z }
+    for (o in sorted) {
+        val sc = scaleZ(o.z)
+        val cx = projX(o.lane.toFloat(), o.z)
+        val groundY = projY(o.z)
+        val ow = laneOff * 0.5f * sc
+        when (o.kind) {
+            RunnerViewModel.ObstacleKind.LOW -> {
+                val oh = h * 0.05f * sc
+                drawRect(lowColor, Offset(cx - ow / 2f, groundY - oh), Size(ow, oh))
+            }
+            RunnerViewModel.ObstacleKind.HIGH -> {
+                // Bar floats above a gap a sliding player fits under.
+                val oh = h * 0.05f * sc
+                val gap = h * 0.05f * sc
+                drawRect(highColor, Offset(cx - ow / 2f, groundY - gap - oh), Size(ow, oh))
+            }
+            RunnerViewModel.ObstacleKind.FULL -> {
+                val oh = h * 0.13f * sc
+                drawRect(fullColor, Offset(cx - ow / 2f, groundY - oh), Size(ow, oh))
+            }
+        }
+    }
+
+    // Player: fixed near the bottom, raised by jump height, squashed while sliding.
+    val px = projX(state.playerLane, 0f)
+    val feetY = baseY - state.playerY * h
+    val pw = laneOff * 0.5f
+    val ph = if (state.isSliding) h * 0.045f else h * 0.085f
+    val blink = state.invulnRemaining > 0f && (state.invulnRemaining * 12f).toInt() % 2 == 0
+    // Shadow on the ground (stays put even while jumping).
+    drawOval(shadowColor, topLeft = Offset(px - pw * 0.5f, baseY - h * 0.01f), size = Size(pw, h * 0.02f))
+    if (!blink) {
+        drawRoundRect(
+            playerColor,
+            topLeft = Offset(px - pw / 2f, feetY - ph),
+            size = Size(pw, ph),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(ph * 0.3f),
+        )
+    }
+}
+
+@Composable
+private fun GameOverOverlay(metres: Int, best: Int, onPlayAgain: () -> Unit, onExit: () -> Unit) {
+    Box(
+        modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.75f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(Sizes.sm),
+        ) {
+            Text("Game Over", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+            Text("Distance: $metres m", color = Color.White, style = MaterialTheme.typography.titleMedium)
+            Text("Best: $best m", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.size(Sizes.sm))
+            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
+                Button(onClick = onPlayAgain) { Text("Play again") }
+                Button(onClick = onExit) { Text("Exit") }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "spec:width=800dp,height=1280dp,dpi=240,orientation=portrait")
+@Composable
+private fun RunnerScreenPortraitPreview() {
+    MinigumTheme {
+        RunnerScreen(navController = rememberNavController())
+    }
+}
