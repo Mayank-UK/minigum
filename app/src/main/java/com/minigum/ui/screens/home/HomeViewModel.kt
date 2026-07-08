@@ -13,9 +13,19 @@ class HomeViewModel @Inject constructor(
 
     val links = listOf(
         LinkData(
-            title = "Android fundamentals",
+            title = "Snake",
             image = R.drawable.snake,
             routePath = NavRouter.SnakeScreen.route
+        ),
+        LinkData(
+            title = "Pong",
+            image = R.drawable.pong,
+            routePath = NavRouter.PongScreen.route
+        ),
+        LinkData(
+            title = "Shooter",
+            image = R.drawable.shooter,
+            routePath = NavRouter.ShooterScreen.route
         ),
     )
 }

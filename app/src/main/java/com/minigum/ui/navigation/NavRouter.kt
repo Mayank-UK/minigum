@@ -7,4 +7,6 @@ package com.minigum.ui.navigation
 sealed class NavRouter(val route: String) {
     object HomeScreen : NavRouter("home")
     object SnakeScreen : NavRouter("snake")
+    object PongScreen : NavRouter("pong")
+    object ShooterScreen : NavRouter("shooter")
 }

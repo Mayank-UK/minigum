@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,9 +44,6 @@ fun GamePauseOverlay(
     onHowToPlay: () -> Unit,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
-    title: String = "Paused",
-    resumeLabel: String = "Resume",
-    exitLabel: String = "Exit to home",
     settings: @Composable (() -> Unit)? = null,
 ) {
     Box(
@@ -53,15 +52,17 @@ fun GamePauseOverlay(
             .background(Color.Black.copy(alpha = 0.75f)),
         contentAlignment = Alignment.Center,
     ) {
+        val scrollState = rememberScrollState()
+
         Column(
             modifier = Modifier
-                .width(280.dp)
-                .padding(Sizes.lg),
+                .padding(Sizes.lg)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Sizes.md),
         ) {
             Text(
-                title,
+                "Paused",
                 color = Color.White,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
@@ -69,14 +70,21 @@ fun GamePauseOverlay(
 
             settings?.invoke()
 
-            Button(onClick = onResume, modifier = Modifier.fillMaxWidth()) {
-                Text(resumeLabel)
-            }
-            Button(onClick = onHowToPlay, modifier = Modifier.fillMaxWidth()) {
-                Text("How to play")
-            }
-            Button(onClick = onExit, modifier = Modifier.fillMaxWidth()) {
-                Text(exitLabel)
+            Column(
+                modifier = Modifier
+                    .width(280.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(Sizes.md),
+            ) {
+                Button(onClick = onResume, modifier = Modifier.fillMaxWidth()) {
+                    Text("Resume")
+                }
+                Button(onClick = onHowToPlay, modifier = Modifier.fillMaxWidth()) {
+                    Text("How to play")
+                }
+                Button(onClick = onExit, modifier = Modifier.fillMaxWidth()) {
+                    Text("Exit to home")
+                }
             }
         }
     }

@@ -74,6 +74,6 @@ fun GameLink(
         modifier = Modifier
             .clip(RoundedCornerShape(Sizes.md))
             .clickable(onClick = onClick),
-        contentScale = ContentScale.Crop,
+        contentScale = ContentScale.Fit,
     )
 }

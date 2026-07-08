@@ -1,4 +1,4 @@
-package com.androiddevelopersguide.ui.screens.temp
+package com.minigum.ui.screens.temp
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

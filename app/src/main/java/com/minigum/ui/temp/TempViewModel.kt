@@ -1,4 +1,4 @@
-package com.androiddevelopersguide.ui.screens.temp
+package com.minigum.ui.screens.temp
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
