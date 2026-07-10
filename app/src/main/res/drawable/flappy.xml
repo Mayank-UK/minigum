@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- sky -->
+    <path android:fillColor="#4FC3F7" android:pathData="M0,0h200v200h-200z" />
+    <!-- ground -->
+    <path android:fillColor="#DED08A" android:pathData="M0,168h200v32h-200z" />
+    <!-- pipe body + cap -->
+    <path android:fillColor="#66BB6A" android:pathData="M126,40h28v128h-28z" />
+    <path android:fillColor="#4CAF50" android:pathData="M120,40h40v12h-40z" />
+    <!-- bird body -->
+    <path android:fillColor="#FFD54F" android:pathData="M34,104 a28,28 0 1,0 56,0 a28,28 0 1,0 -56,0" />
+    <!-- wing -->
+    <path android:fillColor="#FFA000" android:pathData="M40,110 q16,-20 32,-4 q-16,20 -32,4 z" />
+    <!-- beak -->
+    <path android:fillColor="#FF7043" android:pathData="M88,98 l18,6 l-18,6 z" />
+    <!-- eye -->
+    <path android:fillColor="#FFFFFF" android:pathData="M73,92 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
+    <path android:fillColor="#222222" android:pathData="M79,92 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+</vector>

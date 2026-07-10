@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- sky -->
+    <path android:fillColor="#B3E5FC" android:pathData="M0,0h200v200h-200z" />
+    <!-- ground -->
+    <path android:fillColor="#DED08A" android:pathData="M0,150 h200 v50 h-200 z" />
+    <path android:fillColor="#BFAE6A" android:pathData="M0,150 h200 v6 h-200 z" />
+    <!-- motion lines -->
+    <path android:strokeColor="#90A4AE" android:strokeWidth="6" android:strokeLineCap="round"
+        android:pathData="M40,100 L72,100 M30,116 L66,116 M46,84 L72,84" />
+    <!-- runner body + limbs -->
+    <path android:strokeColor="#C62828" android:strokeWidth="10" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M115,86 L115,120 M115,100 L95,90 M115,100 L140,108 M115,120 L100,150 M115,120 L140,144" />
+    <!-- head -->
+    <path android:fillColor="#FF7043" android:pathData="M102,72 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0" />
+</vector>

@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- indigo backdrop -->
+    <path android:fillColor="#303F9F" android:pathData="M0,0h200v200h-200z" />
+    <!-- board -->
+    <path android:fillColor="#FFFFFF" android:pathData="M10,10h180v180h-180z" />
+    <!-- selected cell highlight -->
+    <path android:fillColor="#FFE082" android:pathData="M88,88h24v24h-24z" />
+    <!-- given "digits" as vibrant tiles -->
+    <path android:fillColor="#FFB300" android:pathData="M32.5,12.5h15v15h-15z M132.5,52.5h15v15h-15z M52.5,112.5h15v15h-15z M112.5,152.5h15v15h-15z" />
+    <path android:fillColor="#E53935" android:pathData="M92.5,12.5h15v15h-15z M32.5,72.5h15v15h-15z M152.5,112.5h15v15h-15z M52.5,172.5h15v15h-15z" />
+    <path android:fillColor="#1E88E5" android:pathData="M152.5,12.5h15v15h-15z M52.5,32.5h15v15h-15z M132.5,72.5h15v15h-15z M72.5,132.5h15v15h-15z" />
+    <path android:fillColor="#43A047" android:pathData="M112.5,32.5h15v15h-15z M12.5,52.5h15v15h-15z M172.5,132.5h15v15h-15z" />
+    <path android:fillColor="#8E24AA" android:pathData="M172.5,32.5h15v15h-15z M72.5,52.5h15v15h-15z M12.5,152.5h15v15h-15z M132.5,172.5h15v15h-15z" />
+    <!-- thin cell lines -->
+    <path android:strokeColor="#CFD8DC" android:strokeWidth="2"
+        android:pathData="M30,10v180 M50,10v180 M90,10v180 M110,10v180 M150,10v180 M170,10v180 M10,30h180 M10,50h180 M10,90h180 M10,110h180 M10,150h180 M10,170h180" />
+    <!-- thick 3x3 box lines + outer frame -->
+    <path android:strokeColor="#37474F" android:strokeWidth="6"
+        android:pathData="M10,10v180 M70,10v180 M130,10v180 M190,10v180 M10,10h180 M10,70h180 M10,130h180 M10,190h180" />
+</vector>

@@ -400,6 +400,40 @@ private fun DrawScope.drawStars(stars: List<Star>, t: Float, color: Color) {
     }
 }
 
+// Pixel-art invader sprites (11 wide). 'X' = filled cell.
+private val INVADER_PATTERNS = listOf(
+    listOf(
+        "..X.....X..",
+        "...X...X...",
+        "..XXXXXXX..",
+        ".XX.XXX.XX.",
+        "XXXXXXXXXXX",
+        "X.XXXXXXX.X",
+        "X.X.....X.X",
+        "...XX.XX...",
+    ),
+    listOf(
+        "...XXXXX...",
+        ".XXXXXXXXX.",
+        "XXXXXXXXXXX",
+        "XX.X.X.X.XX",
+        "XXXXXXXXXXX",
+        "..XX...XX..",
+        ".XX.....XX.",
+        "X.X.....X.X",
+    ),
+)
+private val INVADER_TOUGH = listOf(
+    "....XXX....",
+    "...XXXXX...",
+    "..XXXXXXX..",
+    ".XX.XXX.XX.",
+    "XXXXXXXXXXX",
+    "XX.XXXXX.XX",
+    "XX.X...X.XX",
+    ".X..X.X..X.",
+)
+
 private fun DrawScope.drawShip(state: ShooterViewModel.GameState, color: Color, scale: Float) {
     // Blink the ship while invulnerable so the player sees the safe window.
     if (state.invulnRemaining > 0f && (state.invulnRemaining * 12f).toInt() % 2 == 0) return
@@ -407,20 +441,34 @@ private fun DrawScope.drawShip(state: ShooterViewModel.GameState, color: Color, 
     val cy = ShooterViewModel.PLAYER_Y * scale
     val w = state.playerHalfW * 2f * scale
     val h = ShooterViewModel.PLAYER_HALF_H * 2f * scale
-    drawRoundRect(
-        color = color,
-        topLeft = Offset(cx - w / 2f, cy - h / 2f),
-        size = Size(w, h),
-        cornerRadius = androidx.compose.ui.geometry.CornerRadius(h * 0.4f),
+    val flame = Color(0xFFFFAB40)
+    val cockpit = Color(0xFFB3E5FC)
+
+    // Engine flame.
+    drawPath(
+        path(listOf(Offset(cx - w * 0.12f, cy + h * 0.3f), Offset(cx, cy + h * 0.8f), Offset(cx + w * 0.12f, cy + h * 0.3f))),
+        color = flame,
     )
-    // Gun barrels: one straight, or three when the spread buff is active.
-    val barrelW = w * 0.1f
-    val barrelH = h * 0.8f
-    drawRect(color, Offset(cx - barrelW / 2f, cy - h), Size(barrelW, barrelH))
+    // Wings.
+    val wing = color.copy(alpha = 0.7f)
+    drawPath(path(listOf(Offset(cx - w * 0.2f, cy), Offset(cx - w * 0.55f, cy + h * 0.55f), Offset(cx - w * 0.05f, cy + h * 0.4f))), color = wing)
+    drawPath(path(listOf(Offset(cx + w * 0.2f, cy), Offset(cx + w * 0.55f, cy + h * 0.55f), Offset(cx + w * 0.05f, cy + h * 0.4f))), color = wing)
+    // Hull.
+    drawPath(path(listOf(Offset(cx, cy - h * 0.9f), Offset(cx + w * 0.22f, cy + h * 0.3f), Offset(cx - w * 0.22f, cy + h * 0.3f))), color = color)
+    // Cockpit.
+    drawCircle(cockpit, w * 0.1f, Offset(cx, cy - h * 0.15f))
+    // Spread buff: extra barrels at the wing tips.
     if (state.spreadRemaining > 0f) {
-        drawRect(color, Offset(cx - w * 0.4f, cy - h * 0.5f), Size(barrelW, barrelH * 0.7f))
-        drawRect(color, Offset(cx + w * 0.4f - barrelW, cy - h * 0.5f), Size(barrelW, barrelH * 0.7f))
+        val bw = w * 0.08f
+        drawRect(color, Offset(cx - w * 0.5f - bw / 2f, cy - h * 0.4f), Size(bw, h * 0.5f))
+        drawRect(color, Offset(cx + w * 0.5f - bw / 2f, cy - h * 0.4f), Size(bw, h * 0.5f))
     }
+}
+
+private fun path(points: List<Offset>) = androidx.compose.ui.graphics.Path().apply {
+    moveTo(points[0].x, points[0].y)
+    for (i in 1 until points.size) lineTo(points[i].x, points[i].y)
+    close()
 }
 
 private fun DrawScope.drawAliens(
@@ -429,38 +477,63 @@ private fun DrawScope.drawAliens(
     toughColor: Color,
     scale: Float,
 ) {
-    val w = state.alienHalfW * 2f * scale
-    val h = state.alienHalfH * 2f * scale
     for (alien in state.aliens) {
         if (!alien.alive) continue
         val cx = (state.groupX + alien.col * state.cellW) * scale
         val cy = (state.groupY + alien.row * ShooterViewModel.ALIEN_CELL_H) * scale
+        val pattern = if (alien.maxHp >= 2) INVADER_TOUGH else INVADER_PATTERNS[alien.row % INVADER_PATTERNS.size]
         // Tough aliens are indigo; a damaged tough alien (hp 1 of 2) dims to show it.
         val color = when {
             alien.maxHp >= 2 && alien.hp >= 2 -> toughColor
             alien.maxHp >= 2 -> toughColor.copy(alpha = 0.55f)
             else -> rowColors.getOrElse(alien.row) { rowColors.last() }
         }
-        drawRect(color, topLeft = Offset(cx - w / 2f, cy - h / 2f), size = Size(w, h))
+        val cols = pattern[0].length
+        val rows = pattern.size
+        val cell = (state.alienHalfW * 2f * scale) / cols
+        val left = cx - cols * cell / 2f
+        val top = cy - rows * cell / 2f
+        for (r in 0 until rows) {
+            val line = pattern[r]
+            for (c in 0 until cols) {
+                if (line[c] == 'X') {
+                    drawRect(color, Offset(left + c * cell, top + r * cell), Size(cell + 0.5f, cell + 0.5f))
+                }
+            }
+        }
     }
 }
 
 private fun DrawScope.drawBullets(state: ShooterViewModel.GameState, color: Color, scale: Float) {
+    // Compact cyan diamond bolts — about bomb-sized, but a different shape and
+    // colour from the round red enemy bombs so the two never read the same.
+    val cyan = Color(0xFF40C4FF)
+    val s = ShooterViewModel.BOMB_HALF_W * 1.4f * scale
     val w = ShooterViewModel.BULLET_HALF_W * 2f * scale
-    val h = ShooterViewModel.BULLET_HALF_H * 2f * scale
     for (bullet in state.bullets) {
-        drawRect(
-            color = color,
-            topLeft = Offset(bullet.x * scale - w / 2f, bullet.y * scale - h / 2f),
-            size = Size(w, h),
-        )
+        val x = bullet.x * scale
+        val y = bullet.y * scale
+        // Short tail behind the bolt (it travels upward).
+        drawRect(cyan.copy(alpha = 0.3f), Offset(x - w / 2f, y), Size(w, s * 1.2f))
+        // Diamond head + bright core.
+        drawPath(path(listOf(Offset(x, y - s), Offset(x + s * 0.65f, y), Offset(x, y + s), Offset(x - s * 0.65f, y))), color = cyan)
+        drawCircle(color, s * 0.28f, Offset(x, y))
     }
 }
 
 private fun DrawScope.drawBombs(state: ShooterViewModel.GameState, color: Color, scale: Float) {
     val r = ShooterViewModel.BOMB_HALF_W * scale
     for (bomb in state.bombs) {
-        drawCircle(color = color, radius = r, center = Offset(bomb.x * scale, bomb.y * scale))
+        val x = bomb.x * scale
+        val y = bomb.y * scale
+        // Flame trail above (the bomb is falling from above).
+        drawPath(
+            path(listOf(Offset(x - r * 0.6f, y - r), Offset(x, y - r * 2.6f), Offset(x + r * 0.6f, y - r))),
+            color = Color(0xFFFFAB40),
+        )
+        drawCircle(color, r, Offset(x, y)) // red body
+        drawCircle(Color(0xFFB71C1C), r * 0.6f, Offset(x, y)) // dark core
+        drawCircle(Color.White.copy(alpha = 0.8f), r * 0.22f, Offset(x - r * 0.3f, y - r * 0.3f)) // highlight
     }
 }
 

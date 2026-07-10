@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- backdrop -->
+    <path android:fillColor="#263238" android:pathData="M0,0h200v200h-200z" />
+    <!-- yards: red / green / yellow / blue -->
+    <path android:fillColor="#E53935" android:pathData="M16,16h68v68h-68z" />
+    <path android:fillColor="#43A047" android:pathData="M116,16h68v68h-68z" />
+    <path android:fillColor="#FBC02D" android:pathData="M116,116h68v68h-68z" />
+    <path android:fillColor="#1E88E5" android:pathData="M16,116h68v68h-68z" />
+    <!-- inner yard pads -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,30h40v40h-40z M130,30h40v40h-40z M130,130h40v40h-40z M30,130h40v40h-40z" />
+    <!-- cross track -->
+    <path android:fillColor="#ECEFF1" android:pathData="M16,86h168v28h-168z M86,16h28v168h-28z" />
+    <!-- centre finish -->
+    <path android:fillColor="#FFC107" android:pathData="M86,86h28v28h-28z" />
+    <!-- a couple of tokens -->
+    <path android:fillColor="#E53935" android:pathData="M50,50m-9,0a9,9 0 1,0 18,0a9,9 0 1,0 -18,0" />
+    <path android:fillColor="#1E88E5" android:pathData="M150,150m-9,0a9,9 0 1,0 18,0a9,9 0 1,0 -18,0" />
+    <path android:fillColor="#43A047" android:pathData="M100,50m-9,0a9,9 0 1,0 18,0a9,9 0 1,0 -18,0" />
+</vector>

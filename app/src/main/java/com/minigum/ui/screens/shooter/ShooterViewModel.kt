@@ -475,7 +475,7 @@ class ShooterViewModel @Inject constructor(
         private const val TICK_MS = 16L
         private const val MAX_DT = 0.033f
 
-        private const val BULLET_SPEED = 1.8f        // heights/sec upward
+        private const val BULLET_SPEED = 2.1f        // heights/sec upward
         private const val FIRE_INTERVAL_S = 0.3f
         private const val RAPID_INTERVAL_S = 0.14f
         private const val SPREAD_ANGLE = 0.28f       // radians off vertical

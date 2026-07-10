@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- court background -->
+    <path android:fillColor="#263238" android:pathData="M0,0h200v200h-200z" />
+    <!-- center net -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.25"
+        android:pathData="M98,20 h4 v10 h-4 z M98,42 h4 v10 h-4 z M98,64 h4 v10 h-4 z M98,86 h4 v10 h-4 z M98,108 h4 v10 h-4 z M98,130 h4 v10 h-4 z M98,152 h4 v10 h-4 z M98,174 h4 v6 h-4 z" />
+    <!-- left paddle (player) -->
+    <path android:fillColor="#42A5F5" android:pathData="M24,70 h12 v60 h-12 z" />
+    <!-- right paddle (AI) -->
+    <path android:fillColor="#EF5350" android:pathData="M164,70 h12 v60 h-12 z" />
+    <!-- ball -->
+    <path android:fillColor="#FFFFFF" android:pathData="M91,100 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" />
+</vector>

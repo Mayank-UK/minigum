@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- sky -->
+    <path android:fillColor="#4FC3F7" android:pathData="M0,0h200v200h-200z" />
+    <!-- clouds -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.5" android:pathData="M30,40 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.5" android:pathData="M44,40 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+    <!-- balloon string -->
+    <path android:strokeColor="#5D4037" android:strokeWidth="3" android:fillColor="#00000000" android:pathData="M100,120 C104,135 96,150 100,168" />
+    <!-- balloon knot -->
+    <path android:fillColor="#C62828" android:pathData="M96,112 l8,0 l-4,8 z" />
+    <!-- balloon body -->
+    <path android:fillColor="#EF5350" android:pathData="M100,30 a45,52 0 1,0 0.1,0 z" />
+    <path android:fillColor="#FFCDD2" android:pathData="M84,52 a14,18 0 1,0 0.1,0 z" />
+    <!-- sound waves (breath) -->
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M150,70 q14,18 0,36" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="4" android:strokeLineCap="round" android:fillColor="#00000000" android:pathData="M165,60 q22,28 0,56" />
+</vector>

@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- grass background -->
+    <path android:fillColor="#7CB342" android:pathData="M0,0h200v200h-200z" />
+    <path android:fillColor="#689F38" android:pathData="M0,150 h200 v50 h-200 z" />
+    <!-- apple (food) -->
+    <path android:fillColor="#2E7D32" android:pathData="M44,40 q9,-9 16,0 q-9,5 -16,0 z" />
+    <path android:fillColor="#E53935" android:pathData="M30,55 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
+    <!-- snake body -->
+    <path
+        android:strokeColor="#FDD835"
+        android:strokeWidth="22"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M40,150 L90,150 L90,100 L140,100 L140,60" />
+    <!-- head + eye -->
+    <path android:fillColor="#FFEB3B" android:pathData="M125,60 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0" />
+    <path android:fillColor="#212121" android:pathData="M146,55 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+    <path android:strokeColor="#E53935" android:strokeWidth="3" android:strokeLineCap="round" android:pathData="M155,58 L168,54 M155,62 L168,66" />
+</vector>

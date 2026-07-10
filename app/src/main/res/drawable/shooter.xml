@@ -1,0 +1,21 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- space background -->
+    <path android:fillColor="#16213E" android:pathData="M0,0h200v200h-200z" />
+    <!-- stars -->
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.8"
+        android:pathData="M28,28 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M168,38 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M148,118 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M38,150 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M172,150 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+    <!-- alien grid: top row -->
+    <path android:fillColor="#BA68C8" android:pathData="M41,33 h18 v18 h-18 z M71,33 h18 v18 h-18 z M101,33 h18 v18 h-18 z M131,33 h18 v18 h-18 z" />
+    <!-- middle row -->
+    <path android:fillColor="#FF5252" android:pathData="M41,59 h18 v18 h-18 z M71,59 h18 v18 h-18 z M101,59 h18 v18 h-18 z M131,59 h18 v18 h-18 z" />
+    <!-- bottom row -->
+    <path android:fillColor="#FFAB40" android:pathData="M41,85 h18 v18 h-18 z M71,85 h18 v18 h-18 z M101,85 h18 v18 h-18 z M131,85 h18 v18 h-18 z" />
+    <!-- bullet -->
+    <path android:fillColor="#FFFFFF" android:pathData="M98,128 h4 v18 h-4 z" />
+    <!-- player ship -->
+    <path android:fillColor="#4FC3F7" android:pathData="M100,150 L84,176 L116,176 z" />
+</vector>

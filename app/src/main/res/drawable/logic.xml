@@ -1,0 +1,29 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- background -->
+    <path android:fillColor="#263238" android:pathData="M0,0h200v200h-200z" />
+    <!-- grid dots -->
+    <path android:fillColor="#37474F" android:pathData="M30,30m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0" />
+    <path android:fillColor="#37474F" android:pathData="M100,30m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0" />
+    <path android:fillColor="#37474F" android:pathData="M170,30m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0" />
+    <path android:fillColor="#37474F" android:pathData="M30,170m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0" />
+    <path android:fillColor="#37474F" android:pathData="M170,170m-2,0a2,2 0 1,0 4,0a2,2 0 1,0 -4,0" />
+    <!-- wires -->
+    <path android:strokeColor="#4FC3F7" android:strokeWidth="5" android:strokeLineCap="round" android:fillColor="#00000000"
+        android:pathData="M40,70 C70,70 70,100 100,100" />
+    <path android:strokeColor="#4FC3F7" android:strokeWidth="5" android:strokeLineCap="round" android:fillColor="#00000000"
+        android:pathData="M40,130 C70,130 70,100 100,100" />
+    <path android:strokeColor="#81C784" android:strokeWidth="5" android:strokeLineCap="round" android:fillColor="#00000000"
+        android:pathData="M120,100 L160,100" />
+    <!-- input nodes -->
+    <path android:fillColor="#FFB74D" android:pathData="M30,70m-10,0a10,10 0 1,0 20,0a10,10 0 1,0 -20,0" />
+    <path android:fillColor="#FFB74D" android:pathData="M30,130m-10,0a10,10 0 1,0 20,0a10,10 0 1,0 -20,0" />
+    <!-- AND gate body (flat back + rounded front) -->
+    <path android:fillColor="#ECEFF1" android:strokeColor="#90A4AE" android:strokeWidth="3"
+        android:pathData="M90,75 h25 a25,25 0 0,1 0,50 h-25 z" />
+    <!-- output node -->
+    <path android:fillColor="#81C784" android:pathData="M170,100m-10,0a10,10 0 1,0 20,0a10,10 0 1,0 -20,0" />
+</vector>

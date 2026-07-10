@@ -32,5 +32,35 @@ class HomeViewModel @Inject constructor(
             image = R.drawable.runner,
             routePath = NavRouter.RunnerScreen.route
         ),
+        LinkData(
+            title = "Flappy",
+            image = R.drawable.flappy,
+            routePath = NavRouter.FlappyScreen.route
+        ),
+        LinkData(
+            title = "Sudoku",
+            image = R.drawable.sudoku,
+            routePath = NavRouter.SudokuScreen.route
+        ),
+        LinkData(
+            title = "Chess",
+            image = R.drawable.chess,
+            routePath = NavRouter.ChessScreen.route
+        ),
+        LinkData(
+            title = "Ludo",
+            image = R.drawable.ludo,
+            routePath = NavRouter.LudoScreen.route
+        ),
+        LinkData(
+            title = "Logic",
+            image = R.drawable.logic,
+            routePath = NavRouter.LogicScreen.route
+        ),
+        LinkData(
+            title = "Balloon",
+            image = R.drawable.balloon,
+            routePath = NavRouter.BalloonScreen.route
+        ),
     )
 }
