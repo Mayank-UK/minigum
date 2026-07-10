@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.minigum.ui.navigation.NavRouter
 import com.minigum.ui.theme.Sizes
@@ -68,15 +70,16 @@ fun WelcomeScreen(navController: NavController) {
     // Play while the screen is foregrounded; stop when it leaves or the app is backgrounded.
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+        val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> music.start()
-                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> music.stop()
+                Lifecycle.Event.ON_RESUME -> music.start()
+                Lifecycle.Event.ON_PAUSE -> music.stop()
                 else -> {}
             }
         }
+
         lifecycleOwner.lifecycle.addObserver(observer)
-        music.start()
+
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             music.stop()
@@ -224,12 +227,13 @@ private fun DrawScope.drawFlowers(flowers: List<Flower>, w: Float, h: Float, gro
 
 // 12-wide x 14-tall pixel baby. '.' = transparent. Arms raised, reaching for the butterfly.
 private val BABY_FRAME = listOf(
-    ".WWWWWWWW.",
-    "WWWWPWPWWW",
-    "WPSSSSSSPW",
-    "WSSSSEESSW",
-    "WSSSSSSSSW",
-    ".WKSSSSKW.",
+    "..PPPPPP..",
+    ".PWWWWWWP.",
+    "PWWSSSSWWP",
+    "PWSESSESWP",
+    "PSSSSSSSSP",
+    "PWSSSMMSWP",
+    ".WKSSMSKW.",
     "..GBBBGG..",
     ".GBBBBBBG.",
     ".GBBBBBBG.",
@@ -244,7 +248,8 @@ private val PALETTE = mapOf(
     'P' to Color(0xFF5E3A78), // purple outline
     'W' to Color(0xFFF8F8FF), // white hood
     'S' to Color(0xFFFFDFC5), // skin
-    'E' to Color(0xFF1E0F0A), // eyes
+    'E' to Color(0xFF2196F3), // eyes
+    'M' to Color(0xFFE91E63), // mouth
     'K' to Color(0xFF2E7D32), // backpack
     'G' to Color(0xFF4F6BD8), // blue shirt
     'B' to Color(0xFF6F84E8), // light blue clothes

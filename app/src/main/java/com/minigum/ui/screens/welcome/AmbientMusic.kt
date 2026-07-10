@@ -29,24 +29,38 @@ class AmbientMusic(private val context: Context) {
 
     private var player: MediaPlayer? = null
     private var wavFile: File? = null
+    @Volatile private var starting = false
 
     /** Begin looping (no-op if already playing or muted). Safe to call repeatedly. */
+    @Synchronized
     fun start() {
-        if (player != null || muted) return
+        if (player != null || muted || starting) return
+
+        starting = true
+
         Thread {
             try {
                 val file = wavFile ?: ensureWav()
-                val mp = MediaPlayer.create(context.applicationContext, Uri.fromFile(file))
-                if (mp == null) { Log.e(TAG, "MediaPlayer.create returned null"); return@Thread }
+
+                val mp = MediaPlayer.create(
+                    context.applicationContext,
+                    Uri.fromFile(file)
+                )
+
+                if (mp == null) {
+                    starting = false
+                    return@Thread
+                }
+
                 mp.isLooping = true
                 mp.setVolume(VOLUME, VOLUME)
                 mp.start()
+
                 player = mp
-                Log.i(TAG, "playback started")
-            } catch (e: Exception) {
-                Log.e(TAG, "start failed", e)
+            } finally {
+                starting = false
             }
-        }.also { it.isDaemon = true; it.name = "ambient-music" }.start()
+        }.start()
     }
 
     /** Stop and release playback. */
