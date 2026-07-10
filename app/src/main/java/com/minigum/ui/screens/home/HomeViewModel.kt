@@ -2,6 +2,7 @@ package com.minigum.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import com.minigum.domain.models.LinkData
+import com.minigum.domain.session.UserSession
 import com.minigum.ui.navigation.NavRouter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -9,7 +10,11 @@ import com.minigum.R
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    userSession: UserSession,
 ) : ViewModel() {
+
+    /** Random name assigned to this player for the session, shown in the drawer. */
+    val userName = userSession.userName
 
     val links = listOf(
         LinkData(

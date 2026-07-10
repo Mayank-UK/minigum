@@ -9,10 +9,13 @@ import com.minigum.ui.screens.flappy.FlappyScreen
 import com.minigum.ui.screens.home.HomeScreen
 import com.minigum.ui.screens.welcome.WelcomeScreen
 import com.minigum.ui.screens.balloon.BalloonScreen
+import com.minigum.ui.screens.about.AboutScreen
+import com.minigum.ui.screens.gamelogic.GameLogicScreen
 import com.minigum.ui.screens.pong.PongScreen
 import com.minigum.ui.screens.runner.RunnerScreen
 import com.minigum.ui.screens.shooter.ShooterScreen
 import com.minigum.ui.screens.snake.SnakeScreen
+import com.minigum.ui.screens.user.UserScreen
 import com.minigum.ui.screens.chess.ChessScreen
 import com.minigum.ui.screens.ludo.LudoScreen
 import com.minigum.ui.screens.logic.LogicScreen
@@ -36,5 +39,8 @@ fun NavGraph(
         composable(NavRouter.LudoScreen.route) { LudoScreen(navController = navController) }
         composable(NavRouter.LogicScreen.route) { LogicScreen(navController = navController) }
         composable(NavRouter.BalloonScreen.route) { BalloonScreen(navController = navController) }
+        composable(NavRouter.UserScreen.route) { UserScreen(navController = navController) }
+        composable(NavRouter.AboutScreen.route) { AboutScreen(navController = navController) }
+        composable(NavRouter.GameLogicScreen.route) { GameLogicScreen(navController = navController) }
     }
 }

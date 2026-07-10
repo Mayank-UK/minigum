@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -36,6 +37,14 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import com.minigum.ui.navigation.NavRouter
 import com.minigum.ui.theme.Sizes
+import com.minigum.ui.components.DefaultLeafColors
+import com.minigum.ui.components.TAU
+import com.minigum.ui.components.WIND_LOOP_MS
+import com.minigum.ui.components.buildLeaves
+import com.minigum.ui.components.buildStreaks
+import com.minigum.ui.components.drawLeaves
+import com.minigum.ui.components.drawWindStreaks
+import com.minigum.ui.components.windStrengthAt
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.sign
@@ -135,8 +144,9 @@ fun WelcomeScreen(navController: NavController) {
 @Composable
 private fun Scene(mascot: Mascot, frame: Float, modifier: Modifier = Modifier) {
     val flowers = remember { buildFlowers() }
+    val leaves = remember { buildLeaves(10) }
+    val streaks = remember { buildStreaks(5) }
     Canvas(modifier = modifier) {
-        @Suppress("UNUSED_EXPRESSION") frame
         val w = size.width
         val h = size.height
         val groundY = h * 0.82f
@@ -145,11 +155,17 @@ private fun Scene(mascot: Mascot, frame: Float, modifier: Modifier = Modifier) {
         val charHeightFrac = (SPRITE_ROWS * 0.013f * minOf(w, h)) / h
         mascot.highCap = (groundY / h) - 2f * charHeightFrac
 
+        // Same wind envelope as the rest of the app (one loop = WIND_LOOP_MS).
+        val t = (frame % (WIND_LOOP_MS / 1000f)) / (WIND_LOOP_MS / 1000f)
+        val windStrength = windStrengthAt(t)
+
         drawSky(w, h, groundY)
         drawSun(w, h)
         drawClouds(mascot.phase, w, h)
         drawGround(w, h, groundY)
-        drawFlowers(flowers, w, h, groundY)
+        drawFlowers(flowers, t, windStrength, w, h, groundY)
+        drawWindStreaks(streaks, t, windStrength, w, h, Color.White.copy(alpha = 0.18f))
+        drawLeaves(leaves, t, windStrength, w, h, DefaultLeafColors)
         mascot.butterfly?.let { drawButterfly(it, mascot.phase, w, h) }
         drawMascot(mascot, w, h, groundY)
     }
@@ -189,7 +205,14 @@ private fun DrawScope.drawGround(w: Float, h: Float, groundY: Float) {
     drawRect(Color(0xFF689F38), Offset(0f, groundY), Size(w, h * 0.02f))
 }
 
-private data class Flower(val x: Float, val y: Float, val color: Color, val size: Float)
+private data class Flower(
+    val x: Float,
+    val y: Float,
+    val color: Color,
+    val size: Float,
+    val phase: Float,
+    val freq: Float,
+)
 
 private val flowerColors = listOf(
     Color(0xFFEC407A), Color(0xFFFFFFFF), Color(0xFFFFB74D),
@@ -205,18 +228,39 @@ private fun buildFlowers(): List<Flower> {
             y = 0.05f + rng.nextFloat() * 0.80f, // fraction within the grass band
             color = flowerColors[rng.nextInt(flowerColors.size)],
             size = 0.005f + rng.nextFloat() * 0.006f,
+            phase = rng.nextFloat() * TAU,
+            freq = 2f + rng.nextFloat() * 3f,
         )
     }
 }
 
-private fun DrawScope.drawFlowers(flowers: List<Flower>, w: Float, h: Float, groundY: Float) {
+private fun DrawScope.drawFlowers(
+    flowers: List<Flower>,
+    t: Float,
+    windStrength: Float,
+    w: Float,
+    h: Float,
+    groundY: Float,
+) {
     val grassH = h - groundY
     for (f in flowers) {
-        val cx = f.x * w
-        val cy = groundY + f.y * grassH
+        val baseX = f.x * w
+        val baseY = groundY + f.y * grassH
         val r = f.size * w
+        // Sway with the wind: a short leaning stem and a head shifted in the gust direction.
+        val sway = sin(t * TAU * f.freq + f.phase)
+        val lean = r * 2.4f * windStrength * (0.6f + 0.4f * sway)
+        drawLine(
+            color = Color(0xFF388E3C),
+            start = Offset(baseX, baseY + r * 1.4f),
+            end = Offset(baseX + lean, baseY),
+            strokeWidth = r * 0.4f,
+            cap = StrokeCap.Round,
+        )
+        val cx = baseX + lean
+        val cy = baseY
         for (i in 0 until 5) {
-            val a = (i / 5f) * 6.283f
+            val a = (i / 5f) * TAU
             drawCircle(f.color, radius = r, center = Offset(cx + kotlin.math.cos(a) * r, cy + kotlin.math.sin(a) * r))
         }
         drawCircle(Color(0xFFFFCA28), radius = r * 0.7f, center = Offset(cx, cy))

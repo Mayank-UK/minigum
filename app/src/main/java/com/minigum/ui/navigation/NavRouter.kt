@@ -17,4 +17,7 @@ sealed class NavRouter(val route: String) {
     object LudoScreen : NavRouter("ludo")
     object LogicScreen : NavRouter("logic")
     object BalloonScreen : NavRouter("balloon")
+    object UserScreen : NavRouter("user")
+    object AboutScreen :NavRouter("about")
+    object GameLogicScreen : NavRouter("game_logic")
 }
