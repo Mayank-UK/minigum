@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.minigum.dev" />
+                  <option name="mobileSdkAppId" value="1:598437662940:android:db28cb0fb3d452ed22a419" />
+                  <option name="projectId" value="minigum-cc60c" />
+                  <option name="projectNumber" value="598437662940" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -3,10 +3,15 @@ package com.minigum.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.minigum.ui.screens.flappy.FlappyScreen
 import com.minigum.ui.screens.home.HomeScreen
+import com.minigum.ui.screens.leaderboard.LeaderboardHubScreen
+import com.minigum.ui.screens.leaderboard.LeaderboardScreen
+import com.minigum.ui.screens.login.LoginScreen
 import com.minigum.ui.screens.welcome.WelcomeScreen
 import com.minigum.ui.screens.balloon.BalloonScreen
 import com.minigum.ui.screens.about.AboutScreen
@@ -42,5 +47,22 @@ fun NavGraph(
         composable(NavRouter.UserScreen.route) { UserScreen(navController = navController) }
         composable(NavRouter.AboutScreen.route) { AboutScreen(navController = navController) }
         composable(NavRouter.GameLogicScreen.route) { GameLogicScreen(navController = navController) }
+        composable(NavRouter.LoginScreen.route) { LoginScreen(navController = navController) }
+        composable(NavRouter.LeaderboardHubScreen.route) { LeaderboardHubScreen(navController = navController) }
+        composable(
+            route = NavRouter.LeaderboardScreen.route,
+            arguments = listOf(
+                navArgument(LeaderboardArgs.GAME) { type = NavType.StringType },
+                navArgument(LeaderboardArgs.SCORE) { type = NavType.IntType; defaultValue = -1 },
+            ),
+        ) { backStackEntry ->
+            val gameId = backStackEntry.arguments?.getString(LeaderboardArgs.GAME).orEmpty()
+            val pendingScore = backStackEntry.arguments?.getInt(LeaderboardArgs.SCORE) ?: -1
+            LeaderboardScreen(
+                navController = navController,
+                gameId = gameId,
+                pendingScore = pendingScore,
+            )
+        }
     }
 }

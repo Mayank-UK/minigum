@@ -53,7 +53,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.minigum.domain.models.LeaderboardGame
+import com.minigum.ui.components.GameOverOverlay
+import com.minigum.ui.components.GameStat
 import com.minigum.ui.components.HowToPlayDialog
+import com.minigum.ui.navigation.leaderboardRoute
+import com.minigum.ui.screens.leaderboard.InlineLeaderboard
+import com.minigum.ui.theme.ArcadeColors
 import com.minigum.ui.theme.MinigumTheme
 import com.minigum.ui.theme.Sizes
 
@@ -119,18 +125,27 @@ fun SudokuScreen(
             MenuOverlay(
                 onNewPuzzle = { showMenu = false; viewModel.startNewGame() },
                 onHowToPlay = { showMenu = false; showHowTo = true },
+                onLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.SUDOKU)) },
                 onExit = { navController.navigateUp() },
             )
         }
 
         if (state.phase == SudokuViewModel.Phase.COMPLETE) {
-            CompleteOverlay(
-                seconds = state.elapsedSeconds,
-                best = state.bestSeconds,
-                mistakes = state.mistakes,
-                hintsUsed = state.hintsUsed,
-                onNewGame = { viewModel.startNewGame() },
+            GameOverOverlay(
+                title = "Solved! 🎉",
+                accent = ArcadeColors.Cyan,
+                playAgainText = "New puzzle",
+                hapticOnShow = true,
+                stats = listOf(
+                    GameStat("Time", formatTime(state.elapsedSeconds)),
+                    GameStat("Best", state.bestSeconds?.let { formatTime(it) } ?: "—"),
+                    GameStat("Mistakes", "${state.mistakes}"),
+                    GameStat("Hints", "${state.hintsUsed}"),
+                ),
+                onPlayAgain = { viewModel.startNewGame() },
                 onExit = { navController.navigateUp() },
+                inlineLeaderboard = { InlineLeaderboard(LeaderboardGame.SUDOKU, state.elapsedSeconds.toInt()) },
+                onFullLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.SUDOKU)) },
             )
         }
     }
@@ -352,6 +367,7 @@ private fun ActionButton(
 private fun MenuOverlay(
     onNewPuzzle: () -> Unit,
     onHowToPlay: () -> Unit,
+    onLeaderboard: () -> Unit,
     onExit: () -> Unit,
 ) {
     Box(
@@ -365,41 +381,8 @@ private fun MenuOverlay(
         ) {
             Button(onClick = onNewPuzzle, modifier = Modifier.fillMaxWidth()) { Text("New puzzle") }
             Button(onClick = onHowToPlay, modifier = Modifier.fillMaxWidth()) { Text("How to play") }
+            Button(onClick = onLeaderboard, modifier = Modifier.fillMaxWidth()) { Text("Leaderboard") }
             Button(onClick = onExit, modifier = Modifier.fillMaxWidth()) { Text("Exit to home") }
-        }
-    }
-}
-
-@Composable
-private fun CompleteOverlay(
-    seconds: Long,
-    best: Long?,
-    mistakes: Int,
-    hintsUsed: Int,
-    onNewGame: () -> Unit,
-    onExit: () -> Unit,
-) {
-    val haptic = LocalHapticFeedback.current
-    LaunchedEffect(Unit) { haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
-
-    Box(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF1B5E20).copy(alpha = 0.92f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Sizes.xs),
-        ) {
-            Text("Solved! 🎉", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(Sizes.sm))
-            Text("Time: ${formatTime(seconds)}", color = Color.White, style = MaterialTheme.typography.titleLarge)
-            best?.let { Text("Best: ${formatTime(it)}", color = Color.White.copy(alpha = 0.85f)) }
-            Text("Mistakes: $mistakes · Hints: $hintsUsed", color = Color.White.copy(alpha = 0.75f), style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(Sizes.md))
-            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
-                Button(onClick = onNewGame) { Text("New puzzle") }
-                Button(onClick = onExit) { Text("Exit") }
-            }
         }
     }
 }

@@ -60,7 +60,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.minigum.domain.models.LeaderboardGame
+import com.minigum.ui.components.GameOverOverlay
 import com.minigum.ui.components.GamePauseOverlay
+import com.minigum.ui.components.GameStat
+import com.minigum.ui.navigation.leaderboardRoute
+import com.minigum.ui.screens.leaderboard.InlineLeaderboard
 import com.minigum.ui.components.HowToPlayDialog
 import com.minigum.ui.theme.MinigumTheme
 import com.minigum.ui.theme.Sizes
@@ -155,17 +160,19 @@ fun PongScreen(
                     showPause = false
                     showHowTo = true
                 },
+                onLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.PONG)) },
                 onExit = { navController.navigateUp() },
             )
         }
 
         if (state.isGameOver && !showPause) {
             GameOverOverlay(
-                winner = state.winner,
-                playerScore = state.playerScore,
-                aiScore = state.aiScore,
+                title = if (state.winner == PongViewModel.Winner.PLAYER) "You win!" else "AI wins",
+                stats = listOf(GameStat("You", "${state.playerScore}"), GameStat("AI", "${state.aiScore}")),
                 onPlayAgain = { viewModel.restart() },
                 onExit = { navController.navigateUp() },
+                inlineLeaderboard = { InlineLeaderboard(LeaderboardGame.PONG, state.playerScore) },
+                onFullLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.PONG)) },
             )
         }
     }
@@ -370,37 +377,6 @@ private fun DrawScope.drawBall(color: Color, ball: PongViewModel.Ball, scale: Fl
         radius = PongViewModel.BALL_RADIUS * scale,
         center = Offset(ball.x * scale, ball.y * scale),
     )
-}
-
-@Composable
-private fun GameOverOverlay(
-    winner: PongViewModel.Winner?,
-    playerScore: Int,
-    aiScore: Int,
-    onPlayAgain: () -> Unit,
-    onExit: () -> Unit,
-) {
-    val youWon = winner == PongViewModel.Winner.PLAYER
-    val title = if (youWon) "You win!" else "AI wins"
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.75f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Sizes.sm),
-        ) {
-            Text(title, color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("You $playerScore — $aiScore AI", color = Color.White, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.size(Sizes.sm))
-            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
-                Button(onClick = onPlayAgain) { Text("Play again") }
-                Button(onClick = onExit) { Text("Exit") }
-            }
-        }
-    }
 }
 
 @Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,dpi=240,orientation=landscape")

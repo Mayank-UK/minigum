@@ -274,29 +274,30 @@ private val BABY_FRAME = listOf(
     "..PPPPPP..",
     ".PWWWWWWP.",
     "PWWSSSSWWP",
-    "PWSESSESWP",
-    "PSSSSSSSSP",
-    "PWSSSMMSWP",
-    ".WKSSMSKW.",
+    "PWSBSSSBWP",   // bigger single-pixel eyes, separated
+    "PSRSMMRSSP",   // rosy blush (R), smile (M)
+    "PSSSSSSSS P",
+    ".WKSSSSKW.",
     "..GBBBGG..",
     ".GBBBBBBG.",
     ".GBBBBBBG.",
     "..BBBBBB..",
     "..BB..BB..",
-    ".NN....NN.",
-    ".NN....NN.",
+    ".NNN..NNN.",
+    ".NNN..NNN.",
     ".........."
 )
 
 private val PALETTE = mapOf(
     'P' to Color(0xFF5E3A78), // purple outline
-    'W' to Color(0xFFF8F8FF), // white hood
-    'S' to Color(0xFFFFDFC5), // skin
-    'E' to Color(0xFF2196F3), // eyes
-    'M' to Color(0xFFE91E63), // mouth
+    'W' to Color(0xFFF0F0FF), // soft white hood (warmer than pure white)
+    'S' to Color(0xFFFFD5A8), // skin — slightly warmer/peachy
+    'B' to Color(0xFF2196F3), // big cute eyes (blue)
+    'R' to Color(0xFFFFB3BA), // rosy blush cheeks
+    'M' to Color(0xFFE07070), // mouth / smile
     'K' to Color(0xFF2E7D32), // backpack
-    'G' to Color(0xFF4F6BD8), // blue shirt
-    'B' to Color(0xFF6F84E8), // light blue clothes
+    'G' to Color(0xFF4F6BD8), // blue shirt (darker)
+    'L' to Color(0xFF6F84E8), // light blue body
     'N' to Color(0xFF6D4C41), // shoes
 )
 

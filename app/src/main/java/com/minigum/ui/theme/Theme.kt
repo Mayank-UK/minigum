@@ -1,61 +1,79 @@
 package com.minigum.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = PrimaryDark,
-    primaryContainer = PrimaryVariantDark,
-    secondary = SecondaryDark,
-    background = BackgroundDark,
-    surface = SurfaceDark,
-    error = ErrorDark,
     onPrimary = OnPrimaryDark,
+    primaryContainer = PrimaryContainerDark,
+    onPrimaryContainer = OnPrimaryContainerDark,
+    secondary = SecondaryDark,
     onSecondary = OnSecondaryDark,
+    secondaryContainer = SecondaryContainerDark,
+    onSecondaryContainer = OnSecondaryContainerDark,
+    tertiary = TertiaryDark,
+    onTertiary = OnTertiaryDark,
+    tertiaryContainer = TertiaryContainerDark,
+    onTertiaryContainer = OnTertiaryContainerDark,
+    background = BackgroundDark,
     onBackground = OnBackgroundDark,
+    surface = SurfaceDark,
     onSurface = OnSurfaceDark,
-    onError = OnErrorDark
+    surfaceVariant = SurfaceVariantDark,
+    onSurfaceVariant = OnSurfaceVariantDark,
+    surfaceContainerLow = SurfaceContainerLowDark,
+    surfaceContainerHigh = SurfaceContainerHighDark,
+    error = ErrorDark,
+    onError = OnErrorDark,
+    outline = OutlineDark,
+    outlineVariant = OutlineVariantDark,
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
-    primaryContainer = PrimaryVariantLight,
-    secondary = SecondaryLight,
-    background = BackgroundLight,
-    surface = SurfaceLight,
-    error = ErrorLight,
     onPrimary = OnPrimaryLight,
+    primaryContainer = PrimaryContainerLight,
+    onPrimaryContainer = OnPrimaryContainerLight,
+    secondary = SecondaryLight,
     onSecondary = OnSecondaryLight,
+    secondaryContainer = SecondaryContainerLight,
+    onSecondaryContainer = OnSecondaryContainerLight,
+    tertiary = TertiaryLight,
+    onTertiary = OnTertiaryLight,
+    tertiaryContainer = TertiaryContainerLight,
+    onTertiaryContainer = OnTertiaryContainerLight,
+    background = BackgroundLight,
     onBackground = OnBackgroundLight,
+    surface = SurfaceLight,
     onSurface = OnSurfaceLight,
-    onError = OnErrorLight
+    surfaceVariant = SurfaceVariantLight,
+    onSurfaceVariant = OnSurfaceVariantLight,
+    surfaceContainerLow = SurfaceContainerLowLight,
+    surfaceContainerHigh = SurfaceContainerHighLight,
+    error = ErrorLight,
+    onError = OnErrorLight,
+    outline = OutlineLight,
+    outlineVariant = OutlineVariantLight,
 )
 
-
+/**
+ * The app theme.
+ *
+ * [dynamicColor] defaults to **false** deliberately: Material You would pull colors from the
+ * device wallpaper and completely overwrite the arcade palette above, which is what made the old
+ * UI look generic/boring. The brand palette is the point here, so it's always applied.
+ */
 @Composable
 fun MinigumTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

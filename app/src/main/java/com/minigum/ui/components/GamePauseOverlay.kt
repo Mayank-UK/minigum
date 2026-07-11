@@ -44,6 +44,7 @@ fun GamePauseOverlay(
     onHowToPlay: () -> Unit,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
+    onLeaderboard: (() -> Unit)? = null,
     settings: @Composable (() -> Unit)? = null,
 ) {
     Box(
@@ -81,6 +82,11 @@ fun GamePauseOverlay(
                 }
                 Button(onClick = onHowToPlay, modifier = Modifier.fillMaxWidth()) {
                     Text("How to play")
+                }
+                onLeaderboard?.let { lb ->
+                    Button(onClick = lb, modifier = Modifier.fillMaxWidth()) {
+                        Text("Leaderboard")
+                    }
                 }
                 Button(onClick = onExit, modifier = Modifier.fillMaxWidth()) {
                     Text("Exit to home")

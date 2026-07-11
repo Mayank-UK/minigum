@@ -63,7 +63,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.minigum.domain.models.LeaderboardGame
+import com.minigum.ui.components.GameOverOverlay
 import com.minigum.ui.components.GamePauseOverlay
+import com.minigum.ui.components.GameStat
+import com.minigum.ui.navigation.leaderboardRoute
+import com.minigum.ui.screens.leaderboard.InlineLeaderboard
 import com.minigum.ui.components.HowToPlayDialog
 import com.minigum.ui.theme.MinigumTheme
 import com.minigum.ui.theme.Sizes
@@ -168,6 +173,7 @@ fun BalloonScreen(
             GamePauseOverlay(
                 onResume = { showPause = false; viewModel.start() },
                 onHowToPlay = { showPause = false; showHowTo = true },
+                onLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.BALLOON)) },
                 onExit = { navController.navigateUp() },
                 settings = {
                     Button(onClick = { viewModel.restart(); showPause = false }) { Text("Restart") }
@@ -177,11 +183,16 @@ fun BalloonScreen(
 
         if (state.isGameOver) {
             GameOverOverlay(
-                metres = (state.maxHeight * 10).toInt(),
-                coins = state.coinsCollected,
-                best = state.bestHeight,
+                title = "Popped!",
+                stats = listOf(
+                    GameStat("Height", "${(state.maxHeight * 10).toInt()} m"),
+                    GameStat("Coins", "${state.coinsCollected}", highlight = true),
+                    GameStat("Best", "${state.bestHeight} m"),
+                ),
                 onPlayAgain = { viewModel.restart() },
                 onExit = { navController.navigateUp() },
+                inlineLeaderboard = { InlineLeaderboard(LeaderboardGame.BALLOON, (state.maxHeight * 10).toInt()) },
+                onFullLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.BALLOON)) },
             )
         }
     }
@@ -398,29 +409,6 @@ private fun CalibrationOverlay(title: String, subtitle: String, extra: @Composab
             Text(title, color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Text(subtitle, color = Color.White.copy(alpha = 0.9f), textAlign = TextAlign.Center)
             extra()
-        }
-    }
-}
-
-@Composable
-private fun GameOverOverlay(metres: Int, coins: Int, best: Int, onPlayAgain: () -> Unit, onExit: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.75f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Sizes.sm),
-        ) {
-            Text("Popped!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Height: $metres m", color = Color.White, style = MaterialTheme.typography.titleMedium)
-            Text("Coins: $coins", color = Color(0xFFFFD54F), style = MaterialTheme.typography.titleSmall)
-            Text("Best: $best m", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.height(Sizes.sm))
-            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
-                Button(onClick = onPlayAgain) { Text("Try again") }
-                Button(onClick = onExit) { Text("Exit") }
-            }
         }
     }
 }

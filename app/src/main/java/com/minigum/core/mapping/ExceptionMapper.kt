@@ -1,10 +1,12 @@
 package com.minigum.core.mapping
 
 import com.minigum.core.exceptions.AppException
+import com.minigum.core.exceptions.AuthException
 import com.minigum.core.exceptions.DatabaseException
 import com.minigum.core.exceptions.DecodingException
 import com.minigum.core.exceptions.NetworkException
 import com.minigum.core.exceptions.ServerException
+import com.minigum.core.failures.AuthFailure
 import com.minigum.core.failures.CacheFailure
 import com.minigum.core.failures.Failure
 import com.minigum.core.failures.FailureSeverity
@@ -22,12 +24,24 @@ object ExceptionMapper {
     fun map(exception: AppException): Failure {
         val innerCause: Failure? = (exception.cause as? AppException)?.let { map(it) }
         return when (exception) {
+            is AuthException -> mapAuth(exception, innerCause)
             is NetworkException -> mapNetwork(exception, innerCause)
             is ServerException -> mapServer(exception, innerCause)
             is DatabaseException -> mapDatabase(exception, innerCause)
             is DecodingException -> mapDecoding(exception, innerCause)
         }
     }
+
+    /**
+     * Auth errors carry an already-user-facing message (set in [com.minigum.core.guards.guardedFirebaseCall]),
+     * so it's passed through unchanged at WARNING severity — never replaced with generic text.
+     */
+    private fun mapAuth(exception: AuthException, cause: Failure?): AuthFailure = AuthFailure(
+        exception.message,
+        FailureSeverity.WARNING,
+        cause,
+        exception.toString(),
+    )
 
     private fun mapNetwork(exception: NetworkException, cause: Failure?): NetworkFailure =
         NetworkFailure(

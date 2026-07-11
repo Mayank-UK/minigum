@@ -20,4 +20,20 @@ sealed class NavRouter(val route: String) {
     object UserScreen : NavRouter("user")
     object AboutScreen :NavRouter("about")
     object GameLogicScreen : NavRouter("game_logic")
+    object LoginScreen : NavRouter("login")
+    object LeaderboardHubScreen : NavRouter("leaderboard_hub")
+    object LeaderboardScreen : NavRouter("leaderboard?game={game}&score={score}")
 }
+
+/** Route argument names shared between the nav graph and the leaderboard entry points. */
+object LeaderboardArgs {
+    const val GAME = "game"
+    const val SCORE = "score"
+}
+
+/**
+ * Builds a leaderboard route for [game]. Pass a non-negative [score] to submit it as the player's
+ * best (used from a game's game-over screen); omit it (or pass -1) to just view the board.
+ */
+fun leaderboardRoute(game: com.minigum.domain.models.LeaderboardGame, score: Int = -1): String =
+    "leaderboard?game=${game.id}&score=$score"

@@ -62,7 +62,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.minigum.domain.models.LeaderboardGame
+import com.minigum.ui.components.GameOverOverlay
 import com.minigum.ui.components.GamePauseOverlay
+import com.minigum.ui.components.GameStat
+import com.minigum.ui.navigation.leaderboardRoute
+import com.minigum.ui.screens.leaderboard.InlineLeaderboard
 import com.minigum.ui.components.HowToPlayDialog
 import com.minigum.ui.theme.MinigumTheme
 import com.minigum.ui.theme.Sizes
@@ -166,6 +171,7 @@ fun ShooterScreen(
                     showPause = false
                     showHowTo = true
                 },
+                onLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.SHOOTER)) },
                 onExit = { navController.navigateUp() },
                 settings = {
                     Row(
@@ -187,11 +193,16 @@ fun ShooterScreen(
 
         if (state.isGameOver && !showPause) {
             GameOverOverlay(
-                score = state.score,
-                best = state.bestScore,
-                wave = state.wave,
+                title = "Game Over",
+                stats = listOf(
+                    GameStat("Score", "${state.score}"),
+                    GameStat("Wave", "${state.wave}"),
+                    GameStat("Best", "${state.bestScore}"),
+                ),
                 onPlayAgain = { viewModel.restart() },
                 onExit = { navController.navigateUp() },
+                inlineLeaderboard = { InlineLeaderboard(LeaderboardGame.SHOOTER, state.score) },
+                onFullLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.SHOOTER)) },
             )
         }
     }
@@ -571,37 +582,6 @@ private fun DrawScope.drawExplosions(state: ShooterViewModel.GameState, scale: F
         val alpha = (1f - progress).coerceIn(0f, 1f)
         drawCircle(color = Color(0xFFFFAB40).copy(alpha = alpha * 0.8f), radius = radius, center = Offset(e.x * scale, e.y * scale))
         drawCircle(color = Color.White.copy(alpha = alpha * 0.6f), radius = radius * 0.5f, center = Offset(e.x * scale, e.y * scale))
-    }
-}
-
-@Composable
-private fun GameOverOverlay(
-    score: Int,
-    best: Int,
-    wave: Int,
-    onPlayAgain: () -> Unit,
-    onExit: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.75f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Sizes.sm),
-        ) {
-            Text("Game Over", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Score: $score", color = Color.White, style = MaterialTheme.typography.titleMedium)
-            Text("Reached wave $wave", color = Color.White.copy(alpha = 0.85f), style = MaterialTheme.typography.titleSmall)
-            Text("Best: $best", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.size(Sizes.sm))
-            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
-                Button(onClick = onPlayAgain) { Text("Play again") }
-                Button(onClick = onExit) { Text("Exit") }
-            }
-        }
     }
 }
 

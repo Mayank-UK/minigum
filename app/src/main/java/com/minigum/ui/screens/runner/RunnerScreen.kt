@@ -57,7 +57,12 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.minigum.domain.models.LeaderboardGame
+import com.minigum.ui.components.GameOverOverlay
 import com.minigum.ui.components.GamePauseOverlay
+import com.minigum.ui.components.GameStat
+import com.minigum.ui.navigation.leaderboardRoute
+import com.minigum.ui.screens.leaderboard.InlineLeaderboard
 import com.minigum.ui.components.HowToPlayDialog
 import com.minigum.ui.theme.MinigumTheme
 import com.minigum.ui.theme.Sizes
@@ -133,16 +138,22 @@ fun RunnerScreen(
             GamePauseOverlay(
                 onResume = { showPause = false; viewModel.start() },
                 onHowToPlay = { showPause = false; showHowTo = true },
+                onLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.RUNNER)) },
                 onExit = { navController.navigateUp() },
             )
         }
 
         if (state.isGameOver && !showPause) {
             GameOverOverlay(
-                metres = state.metres.toInt(),
-                best = state.bestMetres,
+                title = "Game Over",
+                stats = listOf(
+                    GameStat("Distance", "${state.metres.toInt()} m"),
+                    GameStat("Best", "${state.bestMetres} m"),
+                ),
                 onPlayAgain = { viewModel.restart() },
                 onExit = { navController.navigateUp() },
+                inlineLeaderboard = { InlineLeaderboard(LeaderboardGame.RUNNER, state.metres.toInt()) },
+                onFullLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.RUNNER)) },
             )
         }
     }
@@ -479,28 +490,6 @@ private fun DrawScope.drawRunner(cx: Float, feetY: Float, h: Float, sliding: Boo
     drawLine(suit, Offset(cx, shoulderY + h * 0.005f), Offset(cx - sw, shoulderY + h * 0.035f), stroke)
     // Head.
     drawCircle(skin, headR, Offset(cx, shoulderY - headR * 0.9f))
-}
-
-@Composable
-private fun GameOverOverlay(metres: Int, best: Int, onPlayAgain: () -> Unit, onExit: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.75f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Sizes.sm),
-        ) {
-            Text("Game Over", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Distance: $metres m", color = Color.White, style = MaterialTheme.typography.titleMedium)
-            Text("Best: $best m", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.size(Sizes.sm))
-            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
-                Button(onClick = onPlayAgain) { Text("Play again") }
-                Button(onClick = onExit) { Text("Exit") }
-            }
-        }
-    }
 }
 
 @Preview(showBackground = true, device = "spec:width=800dp,height=1280dp,dpi=240,orientation=portrait")

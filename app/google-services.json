@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "598437662940",
+    "project_id": "minigum-cc60c",
+    "storage_bucket": "minigum-cc60c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598437662940:android:d0664488522f246622a419",
+        "android_client_info": {
+          "package_name": "com.minigum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgoBZqWCFVXFbYESNA07RL6iaKsU1SOEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598437662940:android:db28cb0fb3d452ed22a419",
+        "android_client_info": {
+          "package_name": "com.minigum.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgoBZqWCFVXFbYESNA07RL6iaKsU1SOEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598437662940:android:c628bd08478a745122a419",
+        "android_client_info": {
+          "package_name": "com.minigum.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgoBZqWCFVXFbYESNA07RL6iaKsU1SOEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

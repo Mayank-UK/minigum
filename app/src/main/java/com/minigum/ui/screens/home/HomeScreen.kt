@@ -35,10 +35,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,6 +54,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +75,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.minigum.ui.components.WindFlowerField
 import com.minigum.ui.navigation.NavRouter
+import com.minigum.ui.theme.ArcadeColors
 import com.minigum.ui.theme.Sizes
 import kotlin.math.cos
 import kotlin.math.sin
@@ -86,6 +90,9 @@ fun HomeScreen(
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
 
+    val displayName by viewModel.displayName.collectAsState()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+
     fun openDrawer() = scope.launch { drawerState.open() }
     fun navigate(route: String) {
         scope.launch { drawerState.close() }
@@ -97,30 +104,54 @@ fun HomeScreen(
         drawerState = drawerState,
         drawerContent = {
             MinigumDrawer(
-                userName = viewModel.userName,
+                userName = displayName,
+                isLoggedIn = isLoggedIn,
                 onNavigate = ::navigate,
             )
         },
     ) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text("Minigum") },
-                    navigationIcon = {
-                        IconButton(onClick = { openDrawer() }) {
-                            Icon(
-                                imageVector = Icons.Filled.Menu,
-                                contentDescription = "Open menu",
+                // Gradient bar (purple→blue) with a bold tracked-out wordmark and a gold neon
+                // hairline along the bottom — replaces the flat primary-colored bar.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Brush.linearGradient(ArcadeColors.PurpleGradient)),
+                ) {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "MINIGUM",
+                                color = Color.White,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 3.sp,
                             )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { openDrawer() }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = "Open menu",
+                                    tint = Color.White,
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent,
+                            titleContentColor = Color.White,
+                            navigationIconContentColor = Color.White,
+                            actionIconContentColor = Color.White,
+                        ),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(3.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(ArcadeColors.Gold),
+                    )
+                }
             },
         ) { innerPadding ->
             Box(
@@ -167,6 +198,7 @@ fun HomeScreen(
 @Composable
 private fun MinigumDrawer(
     userName: String,
+    isLoggedIn: Boolean,
     onNavigate: (String) -> Unit,
 ) {
     ModalDrawerSheet(
@@ -177,7 +209,11 @@ private fun MinigumDrawer(
             WindFlowerField(modifier = Modifier.fillMaxSize())
 
             Column(modifier = Modifier.fillMaxHeight()) {
-                AuroraHeader(userName = userName)
+                AuroraHeader(
+                    userName = userName,
+                    isLoggedIn = isLoggedIn,
+                    onLogin = { onNavigate(NavRouter.LoginScreen.route) },
+                )
 
                 Spacer(Modifier.height(Sizes.md))
 
@@ -187,6 +223,13 @@ private fun MinigumDrawer(
                         .padding(horizontal = Sizes.md),
                     verticalArrangement = Arrangement.spacedBy(Sizes.sm),
                 ) {
+                    DrawerNavCard(
+                        title = "Leaderboard",
+                        subtitle = "Top players & your rank",
+                        accent = listOf(Color(0xFFFFD400), Color(0xFFFF6D00)),
+                        icon = Icons.Filled.EmojiEvents,
+                        onClick = { onNavigate(NavRouter.LeaderboardHubScreen.route) },
+                    )
                     DrawerNavCard(
                         title = "User",
                         subtitle = "Your player profile",
@@ -220,7 +263,7 @@ private fun MinigumDrawer(
 
 /** Animated hero header: a living aurora with floating pixel stars, the avatar and name on top. */
 @Composable
-private fun AuroraHeader(userName: String) {
+private fun AuroraHeader(userName: String, isLoggedIn: Boolean, onLogin: () -> Unit) {
     val transition = rememberInfiniteTransition(label = "aurora")
     val phase by transition.animateFloat(
         initialValue = 0f,
@@ -266,6 +309,12 @@ private fun AuroraHeader(userName: String) {
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
             )
+            // Signed-out players see a Log in button here; signed-in players see nothing extra
+            // (their profile lives behind the User card).
+            if (!isLoggedIn) {
+                Spacer(Modifier.height(Sizes.sm))
+                Button(onClick = onLogin) { Text("Log in") }
+            }
         }
     }
 }

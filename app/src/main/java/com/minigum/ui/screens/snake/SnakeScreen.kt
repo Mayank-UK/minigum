@@ -60,8 +60,13 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.minigum.domain.models.LeaderboardGame
+import com.minigum.ui.components.GameOverOverlay
 import com.minigum.ui.components.GamePauseOverlay
+import com.minigum.ui.components.GameStat
 import com.minigum.ui.components.HowToPlayDialog
+import com.minigum.ui.navigation.leaderboardRoute
+import com.minigum.ui.screens.leaderboard.InlineLeaderboard
 import com.minigum.ui.theme.MinigumTheme
 import com.minigum.ui.theme.Sizes
 import kotlin.math.abs
@@ -158,6 +163,7 @@ fun SnakeScreen(
                     showPause = false
                     showHowTo = true
                 },
+                onLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.SNAKE)) },
                 onExit = { navController.navigateUp() },
                 settings = {
                     Row(
@@ -173,10 +179,15 @@ fun SnakeScreen(
 
         if (state.isGameOver && !showPause) {
             GameOverOverlay(
-                score = state.score,
-                best = state.bestScore,
+                title = "Game Over",
+                stats = listOf(
+                    GameStat("Score", "${state.score}"),
+                    GameStat("Best", "${state.bestScore}"),
+                ),
                 onPlayAgain = { viewModel.restart() },
                 onExit = { navController.navigateUp() },
+                inlineLeaderboard = { InlineLeaderboard(LeaderboardGame.SNAKE, state.score) },
+                onFullLeaderboard = { navController.navigate(leaderboardRoute(LeaderboardGame.SNAKE)) },
             )
         }
     }
@@ -381,35 +392,6 @@ private fun DPad(
 private fun DPadButton(icon: ImageVector, desc: String, onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(icon, contentDescription = desc, tint = Color.White, modifier = Modifier.size(36.dp))
-    }
-}
-
-@Composable
-private fun GameOverOverlay(
-    score: Int,
-    best: Int,
-    onPlayAgain: () -> Unit,
-    onExit: () -> Unit,
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.75f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(Sizes.sm),
-        ) {
-            Text("Game Over", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text("Score: $score", color = Color.White, style = MaterialTheme.typography.titleMedium)
-            Text("Best: $best", color = Color.White.copy(alpha = 0.8f), style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.size(Sizes.sm))
-            Row(horizontalArrangement = Arrangement.spacedBy(Sizes.md)) {
-                Button(onClick = onPlayAgain) { Text("Play again") }
-                Button(onClick = onExit) { Text("Exit") }
-            }
-        }
     }
 }
 

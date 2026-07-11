@@ -1,30 +1,27 @@
 package com.minigum.domain.session
 
+import com.minigum.domain.models.UserProfile
+import com.minigum.domain.repositoryinterfaces.AuthRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
 
 /**
- * Holds the player's identity for the current app session.
+ * Holds the player's identity for the current app session and exposes it as a live stream so the
+ * drawer, profile screen, and leaderboard gating all react to sign-in / sign-out.
  *
- * A random display name is assigned once, the first time a [UserSession] is created,
- * and stays stable for the lifetime of the process. Injected anywhere the name is needed
- * (the home drawer, the user screen) so every screen shows the same identity.
+ * - Signed in: [user] emits the real [UserProfile] (and [guestDisplayName] is unused).
+ * - Signed out: [user] emits `null`; callers fall back to [guestDisplayName] so the drawer still
+ *   shows a friendly name — preserving the pre-Firebase random-name behaviour.
+ *
+ * Injected anywhere identity is needed, so every screen agrees on who the player is.
  */
 @Singleton
-class UserSession @Inject constructor() {
+class UserSession @Inject constructor(
+    private val authRepository: AuthRepository,
+    @GuestDisplayName val guestDisplayName: String,
+) {
 
-    val userName: String = generateName()
-
-    private fun generateName(): String {
-        val adjectives = listOf(
-            "Brave", "Clever", "Swift", "Jolly", "Mighty", "Happy", "Lucky",
-            "Cosmic", "Pixel", "Nimble", "Curious", "Sneaky", "Golden", "Silent", "Royal",
-        )
-        val animals = listOf(
-            "Falcon", "Panda", "Tiger", "Comet", "Otter", "Fox", "Phoenix",
-            "Raccoon", "Walrus", "Lynx", "Hedgehog", "Dolphin", "Badger", "Koala", "Hawk",
-        )
-        return "${adjectives.random(Random)} ${animals.random(Random)}"
-    }
+    /** Hot stream of the signed-in user, or `null` when signed out. */
+    val user: Flow<UserProfile?> = authRepository.observeCurrentUser()
 }
